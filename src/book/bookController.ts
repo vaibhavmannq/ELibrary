@@ -54,14 +54,15 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
     });
 
     try {
-        // delete temp files
-        await fs.promises.unlink(filePath);
-        await fs.promises.unlink(bookFilePath);
-      } catch (err) {
-        return next(createHttpError(500, "Error in deleting temporary files"));
-      }
+      // delete temp files
+      await fs.promises.unlink(filePath);
+      await fs.promises.unlink(bookFilePath);
+    } catch (err) {
+      console.log(err);
+      return next(createHttpError(500, "Error in deleting temporary files"));
+    }
 
-    res.status(201).json({id: newBook._id}); 
+    res.status(201).json({ id: newBook._id });
   } catch (err) {
     console.log(err);
     return next(createHttpError(500, "Something went wrong"));
