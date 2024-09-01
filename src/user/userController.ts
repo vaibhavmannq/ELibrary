@@ -54,7 +54,43 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const loginUser = async (req: Request, res: Response, next: NextFunction) => {
-  res.json({ message: "Login" });
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return next(createHttpError(400, "Please provide email and password"));
+  }
+
+  let user: User | null;
+  try {
+    user = await userModel.findOne({ email });
+    if (!user) {
+      return next(createHttpError(404, "User not found"));
+    }
+  } catch (err) {
+    return next(createHttpError(500, "Error in finding user"));
+  }
+
+  try {
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return next(createHttpError(400, "Invalid credentials"));
+    }
+  } catch (err) {
+    return next(createHttpError(500, "Error in comparing passwords"));
+  }
+
+  try {
+    // Create access token
+    const token = sign({ sub: user._id }, config.jwtSecret as string, {
+      expiresIn: "7d",
+      algorithm: "HS256",
+    });
+
+    res.json({ accessToken: token });
+  } catch (err) {
+    return next(createHttpError(500, "Error in creating access token"));
+  }
 };
 
 export { createUser, loginUser };
