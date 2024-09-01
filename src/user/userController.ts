@@ -47,10 +47,14 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     });
 
     // Response
-    res.json({ accessToken: token });
+    res.status(201).json({ accessToken: token });
   } catch (err) {
     return next(createHttpError(500, "Error in creating token"));
   }
 };
 
-export { createUser };
+const loginUser = async (req: Request, res: Response, next: NextFunction) => {
+  res.json({ message: "Login" });
+};
+
+export { createUser, loginUser };
