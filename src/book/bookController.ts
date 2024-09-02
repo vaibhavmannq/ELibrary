@@ -154,4 +154,26 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { createBook, updateBook };
+const listBooks = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const books = await bookModel.find().skip(skip).limit(limit);
+    const totalBooks = await bookModel.countDocuments();
+
+    res.json({
+      page,
+      limit,
+      totalBooks,
+      totalPages: Math.ceil(totalBooks / limit),
+      books,
+    });
+  } catch (err) {
+    console.log(err);
+    return next(createHttpError(500, "Error in listing books"));
+  }
+};
+
+export { createBook, updateBook, listBooks };
