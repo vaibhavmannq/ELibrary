@@ -154,25 +154,57 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+// const listBooks = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const page = parseInt(req.query.page as string) || 1;
+//     const limit = parseInt(req.query.limit as string) || 10;
+//     const skip = (page - 1) * limit;
+
+//     const books = await bookModel.find().populate("author", "name").skip(skip).limit(limit);
+//     const totalBooks = await bookModel.countDocuments();
+
+//     res.json({
+//       page,
+//       limit,
+//       totalBooks,
+//       totalPages: Math.ceil(totalBooks / limit),
+//       books,
+//     });
+//   } catch (err) {
+//     console.log(err);
+//     return next(createHttpError(500, "Error in listing books"));
+//   }
+// };
+
+// const getSingleBook = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   const bookId = req.params.bookId;
+
+//   try {
+//     const book = await bookModel.findOne({ _id: bookId }).populate("author", "name");
+//     if (!book) {
+//       return next(createHttpError(404, "Book not found"));
+//     }
+
+//     return res.json(book);
+//   } catch (err) {
+//     console.log(err);
+//     return next(createHttpError(500, "Error in getting book"));
+//   }
+// };
+
 const listBooks = async (req: Request, res: Response, next: NextFunction) => {
+  // const sleep = await new Promise((resolve) => setTimeout(resolve, 5000));
+
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
-    const skip = (page - 1) * limit;
-
-    const books = await bookModel.find().populate("author", "name").skip(skip).limit(limit);
-    const totalBooks = await bookModel.countDocuments();
-
-    res.json({
-      page,
-      limit,
-      totalBooks,
-      totalPages: Math.ceil(totalBooks / limit),
-      books,
-    });
+      // todo: add pagination.
+      const book = await bookModel.find().populate("author", "name");
+      res.json(book);
   } catch (err) {
-    console.log(err);
-    return next(createHttpError(500, "Error in listing books"));
+      return next(createHttpError(500, "Error while getting a book"));
   }
 };
 
@@ -184,15 +216,17 @@ const getSingleBook = async (
   const bookId = req.params.bookId;
 
   try {
-    const book = await bookModel.findOne({ _id: bookId }).populate("author", "name");
-    if (!book) {
-      return next(createHttpError(404, "Book not found"));
-    }
+      const book = await bookModel
+          .findOne({ _id: bookId })
+          // populate author field
+          .populate("author", "name");
+      if (!book) {
+          return next(createHttpError(404, "Book not found."));
+      }
 
-    return res.json(book);
+      return res.json(book);
   } catch (err) {
-    console.log(err);
-    return next(createHttpError(500, "Error in getting book"));
+      return next(createHttpError(500, "Error while getting a book"));
   }
 };
 
