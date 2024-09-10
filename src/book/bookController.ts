@@ -7,7 +7,7 @@ import bookModel from "./bookModel";
 import { AuthRequest } from "../middleware/authenticate";
 
 const createBook = async (req: Request, res: Response, next: NextFunction) => {
-  const { title, genre } = req.body;
+  const { title, genre, description } = req.body;
 
   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
   // 'application/pdf'
@@ -47,6 +47,7 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
 
     const newBook = await bookModel.create({
       title,
+      description,
       genre,
       author: _req.userId,
       coverImage: uploadResult.secure_url,
@@ -70,7 +71,7 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const updateBook = async (req: Request, res: Response, next: NextFunction) => {
-  const { title, genre } = req.body;
+  const { title,description, genre } = req.body;
   const bookId = req.params.bookId;
 
   const book = await bookModel.findOne({ _id: bookId });
@@ -140,6 +141,7 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
       },
       {
         title: title,
+        description: description,
         genre: genre,
         coverImage: completeCoverImage ? completeCoverImage : book.coverImage,
         file: completeFileName ? completeFileName : book.file,
